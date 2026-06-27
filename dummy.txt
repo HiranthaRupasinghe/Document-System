@@ -1,0 +1,2 @@
+Hello, this is a mock security document stored in the separate system!
+It is safely encrypted and rendered dynamically on the portal.

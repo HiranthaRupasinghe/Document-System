@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.log
+separate_system_storage/
+documents.json
+folders.json
+users.json
+.vscode/
+.DS_Store
