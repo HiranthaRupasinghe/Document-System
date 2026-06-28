@@ -925,56 +925,6 @@ export default function App() {
           <main className="dash-grid">
             {/* Sidebar (Upload + List) */}
             <div className="sidebar-panel">
-              {/* Upload Module */}
-              <div className="glass-panel upload-card">
-                <h3 className="panel-title">
-                  <Upload size={18} style={{ color: 'var(--color-primary-light)' }} />
-                  <span>Upload Document</span>
-                </h3>
-                <form onSubmit={handleUploadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div className="dropzone" onClick={() => fileInputRef.current.click()}>
-                    <Upload size={32} className="dropzone-icon" />
-                    <span className="dropzone-text">Click to choose a file from your system</span>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                      style={{ display: 'none' }}
-                    />
-                  </div>
-
-                  {selectedFile && (
-                    <div className="file-selected-info">
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
-                        {selectedFile.name}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-                        {(selectedFile.size / 1024).toFixed(1)} KB
-                      </span>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={isUploading}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: isUploading ? 0.7 : 1 }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                        <span>Uploading...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={18} />
-                        <span>Add Document</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              </div>
-
               {/* Document List Module */}
               <div className="glass-panel list-card">
                 <h3 className="panel-title">
@@ -1061,7 +1011,7 @@ export default function App() {
                       return (
                         <div className="empty-state">
                           <p>No documents in this location.</p>
-                          <p style={{ fontSize: '0.8rem', marginTop: '6px' }}>Upload a file above to add it here.</p>
+                          <p style={{ fontSize: '0.8rem', marginTop: '6px' }}>Upload a file below to add it here.</p>
                         </div>
                       );
                     }
@@ -1095,6 +1045,56 @@ export default function App() {
                     ));
                   })()}
                 </div>
+              </div>
+
+              {/* Upload Module */}
+              <div className="glass-panel upload-card">
+                <h3 className="panel-title">
+                  <Upload size={18} style={{ color: 'var(--color-primary-light)' }} />
+                  <span>Upload Document</span>
+                </h3>
+                <form onSubmit={handleUploadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="dropzone" onClick={() => fileInputRef.current.click()}>
+                    <Upload size={32} className="dropzone-icon" />
+                    <span className="dropzone-text">Click to choose a file from your system</span>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
+                  </div>
+
+                  {selectedFile && (
+                    <div className="file-selected-info">
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }}>
+                        {selectedFile.name}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                        {(selectedFile.size / 1024).toFixed(1)} KB
+                      </span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="btn-primary"
+                    disabled={isUploading}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: isUploading ? 0.7 : 1 }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={18} />
+                        <span>Add Document</span>
+                      </>
+                    )}
+                  </button>
+                </form>
               </div>
             </div>
 
