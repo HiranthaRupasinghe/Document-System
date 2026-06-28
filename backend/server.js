@@ -7,6 +7,7 @@ const fs = require('fs');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,14 @@ const loadData = (filePath) => {
 
 const saveData = (filePath, data) => {
   try {
+    if (filePath === USERS_FILE) {
+      const existingUsers = loadData(USERS_FILE);
+      for (const existingUser of existingUsers) {
+        if (!data.some(u => u.username === existingUser.username)) {
+          throw new Error(`Deletion of user ${existingUser.username} is prohibited.`);
+        }
+      }
+    }
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (error) {
     console.error(`Error saving data to ${filePath}:`, error);
@@ -157,9 +166,35 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
+// Helper to check if a request originates from the server machine itself
+const isLocalRequest = (req) => {
+  const incomingIp = req.ip || req.socket.remoteAddress;
+  if (!incomingIp) return false;
+  if (incomingIp === '127.0.0.1' || incomingIp === '::1' || incomingIp === '::ffff:127.0.0.1') {
+    return true;
+  }
+  try {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.address === incomingIp) {
+          return true;
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error reading network interfaces:', err);
+  }
+  return false;
+};
+
 // 2. User Login
 app.post('/api/login', async (req, res) => {
   try {
+    if (!isLocalRequest(req)) {
+      return res.status(403).json({ message: 'Login is only permitted from the server machine itself' });
+    }
+
     const { username, password } = req.body;
     if (!username || !password) {
       return res.status(400).json({ message: 'Username and password are required' });
