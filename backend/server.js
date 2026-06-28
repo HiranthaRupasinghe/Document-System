@@ -19,11 +19,52 @@ app.use(express.json());
 
 // JSON File Database Configuration
 const USERS_FILE = path.join(__dirname, 'users.json');
+const USERS_BACKUP_FILE = path.join(__dirname, 'separate_system_storage', '.users_backup.json');
 const DOCUMENTS_FILE = path.join(__dirname, 'documents.json');
 const FOLDERS_FILE = path.join(__dirname, 'folders.json');
 
 const loadData = (filePath) => {
   try {
+    if (filePath === USERS_FILE) {
+      let mainUsers = [];
+      try {
+        if (fs.existsSync(USERS_FILE)) {
+          const content = fs.readFileSync(USERS_FILE, 'utf8');
+          mainUsers = JSON.parse(content) || [];
+        }
+      } catch (err) {
+        console.error('Error parsing USERS_FILE', err);
+      }
+
+      let backupUsers = [];
+      try {
+        if (fs.existsSync(USERS_BACKUP_FILE)) {
+          const content = fs.readFileSync(USERS_BACKUP_FILE, 'utf8');
+          backupUsers = JSON.parse(content) || [];
+        }
+      } catch (err) {
+        console.error('Error parsing USERS_BACKUP_FILE', err);
+      }
+
+      const mergedUsers = [...mainUsers];
+      let updated = false;
+      for (const bUser of backupUsers) {
+        if (!mergedUsers.some(u => u.username === bUser.username)) {
+          mergedUsers.push(bUser);
+          updated = true;
+        }
+      }
+
+      if (updated || !fs.existsSync(USERS_FILE)) {
+        const dir = path.dirname(USERS_BACKUP_FILE);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(USERS_FILE, JSON.stringify(mergedUsers, null, 2), 'utf8');
+      }
+      return mergedUsers;
+    }
+
     if (fs.existsSync(filePath)) {
       const content = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(content);
@@ -43,6 +84,13 @@ const saveData = (filePath, data) => {
           throw new Error(`Deletion of user ${existingUser.username} is prohibited.`);
         }
       }
+      fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2), 'utf8');
+      const dir = path.dirname(USERS_BACKUP_FILE);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(USERS_BACKUP_FILE, JSON.stringify(data, null, 2), 'utf8');
+      return;
     }
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (error) {

@@ -7,3 +7,4 @@ folders.json
 users.json
 .vscode/
 .DS_Store
+.users_backup.json
